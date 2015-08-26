@@ -1,19 +1,19 @@
 #include<stdio.h>
 #include<stdlib.h>
-struct node{
+struct NODE{
 	int key;
-	struct node *left;
-	struct node *right;
+	struct NODE *left;
+	struct NODE *right;
 	int height;
 	
-	node(int k){
+	NODE(int k){
 		key=k;
 		left=NULL;
 		right=NULL;
 		height=1;
 	}
 };
-typedef struct node node;
+typedef struct NODE node;
 int max(int a,int b){
 	return a>b?a:b;
 	}
@@ -39,37 +39,63 @@ node *rightRotate(node *root){
 	x->right=root;
 	return x;
 }
+node *balance(node *root){
+	int bf=height(root->left)-height(root->right);
 
-node *push(node* root,int key){
-	node *x;
-	int bf;
-	int left_h,right_h;
+	if(bf>=2)
+		return rightRotate(root);
+	else if(bf<=-2)
+		return leftRotate(root);
+	else 
+		return root;
+}
 
-	if(root==NULL)
-		{
-		x=new node(key);
-		return x;
-		}		
+node *push(node* root,int key){	
+	if(root==NULL)	
+		return new node(key);	
 	if(key<root->key)
 		root->left=push(root->left,key);
 	else
 		root->right=push(root->right,key);	
-	x=root;
-	
-	x->height=height(x);
-
-	left_h=height(x->left);
-	right_h=height(x->right);	
-
-	bf=left_h-right_h;
-	if(bf>=2)
-		return rightRotate(x);
-	else if(bf<=-2)
-		return leftRotate(x);	
-	return x;
-	
+	return balance(root);
 }
-node *delete(node *root,int key){}
+
+node * delete(node* root,int key)
+	{
+	if(!root)
+		return root;
+
+	if(root->left==NULL && root->right==NULL)
+		{
+		if(root->key==key){
+			free(root);
+			return NULL;
+			}
+		else
+			return root;
+		}
+	if(root->key<key)
+		root->left=delete(root->left,key);
+
+	else if(root->key>key)
+		root->right=delete(root->right,key);
+
+	else	
+		{
+		
+		if(root->right!=NULL){
+			root->key=root->right->key;
+			root->right=delete(root->right,root->key);
+			}
+		
+		else	{
+			root->key=root->left->key;
+			root->left=delete(root->left,root->key);
+			}
+		}
+	return balance(root);
+}
+
 void preorder(node *root){
 	if(!root)
 		return;
@@ -96,6 +122,9 @@ int main(){
 	{	
 	tree=push(tree,i);
 	}
+	preorder(tree);
+	printf("\n");
+	tree=delete(tree,4);
 }
 
 
