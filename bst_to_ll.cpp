@@ -1,8 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
-#define LEFT 0
-#define RIGHT 1
 
 using namespace std;
 
@@ -61,28 +59,17 @@ node *minimum(node * root){
 	return root;
 }
 
-node *maximum(node * root){
+void infix(node *root){
 	if(!root)
-		return NULL;
-	while(root->right)
-		root=root->right;
-	return root;
+		return ;
+	static node *tail;
+	infix(root->left);
+	if(tail)
+		tail->next=root;
+	tail=root;
+	infix(root->right);
 }
 
-void make_ll(node *root){
-	if(!root)
-		return;
-
-	node *left = maximum(root->left);
-	node *right = minimum(root->right);
-
-	make_ll(root->left);
-	make_ll(root->right);
-
-	if(left)
-		left->next=root;
-	root->next=right;
-}
 int main(){
 	
 	int l,u;
@@ -92,9 +79,9 @@ int main(){
 	cin>>u;
 	
 	node *root = init_random_tree(l+rand()%(u-l));
-	make_ll(root);
+	infix(root);
 	node *head = minimum(root);
-
+	cout<<endl;
 	while(head->next){
 		cout<<head->key<<"->";
 		head=head->next;
